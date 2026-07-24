@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Пантеон — Volleyball 6×6</title>
+<style>
+:root{
+  --bg:#090a0e;--panel:#12141b;--panel2:#1a1d27;--wine:#7a1535;--wine2:#b52255;
+  --gold:#e2bc63;--text:#f5f3ef;--muted:#9ea3ad;--line:#343947;--good:#59d48a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+button,select{font:inherit}
+button{cursor:pointer}
+#app{height:100%;display:flex;flex-direction:column;background:radial-gradient(circle at 50% -20%,#2b1520 0,#090a0e 48%)}
+header{height:58px;flex:0 0 58px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:rgba(7,8,12,.94);border-bottom:1px solid #31232a;z-index:20}
+.brand{display:flex;align-items:center;gap:10px}.crest{width:38px;height:38px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;font-weight:1000;color:var(--gold);box-shadow:0 0 22px #d7ad4b33}
+.brand b{letter-spacing:.1em}.brand small{display:block;color:var(--muted);font-size:10px}
+.hbtn{background:#191b23;color:white;border:1px solid #3b3e49;border-radius:10px;padding:9px 12px}
+main{flex:1;min-height:0;position:relative}
+.screen{display:none;height:100%}.screen.active{display:flex}
+#menu{padding:16px;gap:16px;overflow:auto}
+.hero{flex:1;border:1px solid #3d2932;border-radius:18px;padding:28px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(140deg,#5d142d88,#151720ee);position:relative;overflow:hidden}
+.hero:after{content:"PANTHEON";position:absolute;right:-30px;bottom:-40px;font-size:100px;font-weight:1000;color:#ffffff08;transform:rotate(-7deg)}
+.hero h1{font-size:clamp(38px,7vw,78px);line-height:.92;margin:8px 0 16px;text-transform:uppercase}
+.hero p{max-width:680px;color:#d6d0d4;line-height:1.55}
+.menuActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.primary{background:linear-gradient(135deg,var(--wine2),var(--wine));border:1px solid #d14172;color:white;border-radius:12px;padding:13px 18px;font-weight:900}
+.gold{background:linear-gradient(135deg,#e1c170,#a77723);color:#171109;border:none;border-radius:12px;padding:13px 18px;font-weight:1000}
+.sidebar{width:360px;display:flex;flex-direction:column;gap:12px}
+.card{background:#12141bee;border:1px solid #313542;border-radius:16px;padding:14px}
+.card h3{margin:0 0 10px;color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.list{display:grid;grid-template-columns:1fr 56px 90px;gap:6px;font-size:12px;max-height:360px;overflow:auto}
+.cell{background:#191c24;padding:8px;border-radius:8px}.num{text-align:center;color:var(--gold);font-weight:900}.role{color:#bfc4cd}
+#selection{padding:12px;gap:12px;overflow:auto}
+.selectionLeft{flex:1;display:flex;flex-direction:column;gap:12px}
+.selectionRight{width:360px;display:flex;flex-direction:column;gap:12px}
+.sectionTitle{display:flex;justify-content:space-between;align-items:center}
+.sectionTitle h2{margin:0}
+.courtSelect{flex:1;min-height:420px;border-radius:18px;border:1px solid #3c414e;background:linear-gradient(#182032,#0f121a);position:relative;overflow:hidden}
+.courtFloor{position:absolute;left:8%;right:8%;top:10%;bottom:10%;background:#ce7d40;clip-path:polygon(18% 0,82% 0,100% 100%,0 100%);border:3px solid #fff2d7}
+.netLine{position:absolute;left:20%;right:20%;top:49%;height:4px;background:#eee;box-shadow:0 0 0 1px #111}
+.zone{position:absolute;width:30%;height:24%;border:1px dashed #ffffff33;display:flex;align-items:center;justify-content:center;color:#ffffff44;font-weight:900}
+.z4{left:8%;top:52%}.z3{left:35%;top:52%}.z2{right:8%;top:52%}.z5{left:8%;bottom:7%}.z6{left:35%;bottom:7%}.z1{right:8%;bottom:7%}
+.slot{width:86px;min-height:70px;border-radius:12px;background:#11151de8;border:2px solid #5f6471;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px;text-align:center;user-select:none}
+.slot b{font-size:13px}.slot small{font-size:10px;color:#b9bec8}.slot .jersey{font-size:22px;color:var(--gold);font-weight:1000}
+.zone .slot{position:relative;z-index:3}
+.benchGrid,.rosterGrid{display:grid;grid-template-columns:1fr;gap:7px}
+.playerCard{display:grid;grid-template-columns:44px 1fr auto;gap:9px;align-items:center;background:#181b24;border:1px solid #343846;border-radius:11px;padding:9px}
+.playerCard.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--wine2),#17181f);display:grid;place-items:center;font-weight:1000}
+.playerCard small{color:var(--muted)}
+.tag{font-size:10px;padding:4px 7px;border-radius:99px;background:#2a2e39;color:#cfd3da}
+#game{flex-direction:column}
+.scorebar{height:66px;flex:0 0 66px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px 12px;background:#0f1117;border-bottom:1px solid #2e323e}
+.scoreName{font-weight:1000;text-transform:uppercase;letter-spacing:.06em}.scoreName.right{text-align:right}.scoreNums{display:flex;align-items:center;gap:12px}.scoreNums b{font-size:30px;min-width:36px;text-align:center}
+#gameArea{flex:1;min-height:0;position:relative;background:#10131a}
+canvas{width:100%;height:100%;display:block;touch-action:none}
+#instruction{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#0a0c11dd;border:1px solid #4a4f5c;border-radius:12px;padding:9px 13px;font-weight:900;text-align:center;min-width:260px;pointer-events:none}
+#phaseChip{position:absolute;top:12px;left:12px;background:#7a1535dd;border:1px solid #c83b6a;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:1000;text-transform:uppercase}
+#subBtn{position:absolute;top:12px;right:12px}
+#aimInfo{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:#0b0d12e8;border:1px solid #3d424f;border-radius:14px;padding:10px 14px;text-align:center;min-width:280px}
+#aimInfo b{color:var(--gold)}
+#benchPanel{position:absolute;right:8px;bottom:8px;width:190px;background:#0b0d12e8;border:1px solid #3b404d;border-radius:14px;padding:8px}
+.benchMini{display:flex;gap:5px;flex-wrap:wrap}.benchMini span{font-size:10px;background:#1c2029;border-radius:8px;padding:5px 6px}
+#modal{position:absolute;inset:0;background:#050609cc;display:none;align-items:center;justify-content:center;z-index:40;padding:16px}
+#modal.show{display:flex}
+.modalBox{width:min(680px,100%);max-height:90%;overflow:auto;background:#13161e;border:1px solid #4a4f5d;border-radius:18px;padding:18px}
+.modalBox h2{margin-top:0}.subGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.subList{display:flex;flex-direction:column;gap:7px}
+.subItem{background:#1a1e27;border:1px solid #353a47;border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center}
+.subItem.active{border-color:var(--gold)}
+.footerActions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.notice{color:#aeb4bf;font-size:12px;line-height:1.45}
+@media(max-width:850px){
+ #menu,#selection{flex-direction:column}.sidebar,.selectionRight{width:100%}.hero{min-height:420px}
+ .courtSelect{min-height:500px}.slot{width:72px;min-height:62px}.slot b{font-size:11px}
+ #benchPanel{display:none}.subGrid{grid-template-columns:1fr}.scoreName{font-size:11px}
+ #instruction{top:50px;min-width:220px;font-size:12px}.scorebar{height:58px;flex-basis:58px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="brand"><div class="crest">P</div><div><b>PANTHEON</b><small>VOLLEYBALL 6×6</small></div></div>
+  <div><button class="hbtn" id="homeBtn">Главное меню</button></div>
+</header>
+<main>
+<section id="menu" class="screen active">
+  <div class="hero">
+    <div style="color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.12em">САНКТ-ПЕТЕРБУРГ • 6×6</div>
+    <h1>Путь<br>Пантеона</h1>
+    <p>Управляй каждым ключевым касанием: выбери зону подачи, успей назначить принимающего, доведи мяч связующему, выбери адресата передачи и направь атаку в свободную часть площадки.</p>
+    <div class="menuActions">
+      <button class="primary" id="newMatchBtn">Новый матч</button>
+      <select class="hbtn" id="oppSelect"></select>
+    </div>
+  </div>
+  <div class="sidebar">
+    <div class="card"><h3>Состав команды</h3><div class="list" id="fullRoster"></div></div>
+    <div class="card"><h3>Управление</h3><div class="notice">Нажми и удерживай палец на площадке, чтобы увидеть потенциальную траекторию. Перемещай палец для прицеливания и отпускай для выполнения действия.</div></div>
+  </div>
+</section>
+
+<section id="selection" class="screen">
+  <div class="selectionLeft">
+    <div class="sectionTitle"><div><h2>Состав и расстановка</h2><div class="notice">На площадке 6 игроков. Либеро автоматически меняет центральных на задней линии.</div></div><button class="gold" id="autoLineupBtn">Оптимальный состав</button></div>
+    <div class="courtSelect">
+      <div class="courtFloor"></div><div class="netLine"></div>
+      <div class="zone z4" data-zone="4">4</div><div class="zone z3" data-zone="3">3</div><div class="zone z2" data-zone="2">2</div>
+      <div class="zone z5" data-zone="5">5</div><div class="zone z6" data-zone="6">6</div><div class="zone z1" data-zone="1">1</div>
+    </div>
+  </div>
+  <div class="selectionRight">
+    <div class="card"><h3>Игроки</h3><div class="rosterGrid" id="selectRoster"></div></div>
+    <div class="card"><h3>Скамейка</h3><div class="benchGrid" id="benchRoster"></div></div>
+    <button class="primary" id="startGameBtn">Начать матч</button>
+  </div>
+</section>
+
+<section id="game" class="screen">
+  <div class="scorebar">
+    <div><div class="scoreName">Пантеон</div><small id="rotationText">Расстановка 1</small></div>
+    <div class="scoreNums"><b id="sa">0</b><span>:</span><b id="sb">0</b></div>
+    <div><div class="scoreName right" id="oppName">Соперник</div><small style="display:block;text-align:right">сет до 15</small></div>
+  </div>
+  <div id="gameArea">
+    <canvas id="court"></canvas>
+    <div id="phaseChip">Подача</div>
+    <div id="instruction">Удерживайте палец на стороне соперника</div>
+    <button class="hbtn" id="subBtn">Замена</button>
+    <div id="aimInfo">Цель: <b id="aimTarget">не выбрана</b></div>
+    <div id="benchPanel"><div class="notice" style="margin-bottom:5px">Скамейка</div><div class="benchMini" id="benchMini"></div></div>
+    <div id="modal"><div class="modalBox">
+      <h2>Замена</h2>
+      <div class="notice">Выберите игрока на площадке и запасного. Либеро меняется автоматически и не расходует обычную замену.</div>
+      <div class="subGrid">
+        <div><h3>На площадке</h3><div class="subList" id="courtSubs"></div></div>
+        <div><h3>Скамейка</h3><div class="subList" id="benchSubs"></div></div>
+      </div>
+      <div class="footerActions"><button class="hbtn" id="cancelSub">Отмена</button><button class="primary" id="confirmSub">Подтвердить</button></div>
+    </div></div>
+  </div>
+</section>
+</main>
+</div>
+
+<script>
+"use strict";
+const players=[
+{id:"mih",name:"Михайлов",n:7,role:"Связующий"},
+{id:"sad",name:"Садиков",n:9,role:"Либеро"},
+{id:"luk",name:"Лукоянов",n:17,role:"Центральный"},
+{id:"loz",name:"Ложенко",n:12,role:"Центральный"},
+{id:"kop",name:"Коптин",n:92,role:"Диагональный"},
+{id:"mar",name:"Мартинович",n:10,role:"Доигровщик"},
+{id:"sec",name:"Сечкин",n:13,role:"Доигровщик"},
+{id:"uzo",name:"Узор",n:11,role:"Доигровщик"},
+{id:"gur",name:"Гуральник",n:69,role:"Доигровщик"},
+{id:"bra",name:"Брагин",n:5,role:"Доигровщик"}
+];
+const opponents=["VOLLEYART 3","ANTIFIRE","Дом молодёжи Атлант","На easy","Valencia Spike","Дикари","VolleySert","Next Gen","Газпром ЦПС","Надежда М (Прометей)","ЛУЧ","SkyNet","Длань","Виллози","Ладога","Армагедец"];
+const defaultLineup={1:"mih",2:"kop",3:"luk",4:"mar",5:"sec",6:"loz"};
+let lineup={...defaultLineup}, selectedRosterId=null, currentOpponent=opponents[0];
+const $=id=>document.getElementById(id);
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");if(id==="game"){resize();resetMatch();requestAnimationFrame(loop)}}
+function pBy(id){return players.find(p=>p.id===id)}
+function benchIds(){const active=Object.values(lineup);return players.filter(p=>!active.includes(p.id)&&p.role!=="Либеро").map(p=>p.id)}
+function displayRoster(){
+ $("fullRoster").innerHTML=players.map(p=>`<div class="cell">${p.name}</div><div class="cell num">${p.n}</div><div class="cell role">${p.role}</div>`).join("");
+ $("oppSelect").innerHTML=opponents.map((o,i)=>`<option value="${i}">${o}</option>`).join("");
+}
+function renderSelection(){
+ document.querySelectorAll(".zone").forEach(z=>{
+   const id=lineup[z.dataset.zone],p=id?pBy(id):null;
+   z.innerHTML=p?`<div class="slot" data-zone="${z.dataset.zone}"><div class="jersey">${p.n}</div><b>${p.name}</b><small>${p.role}</small></div>`:z.dataset.zone;
+ });
+ const active=Object.values(lineup);
+ $("selectRoster").innerHTML=players.map(p=>`<div class="playerCard ${active.includes(p.id)?"selected":""}" data-id="${p.id}">
+   <div class="avatar">${p.n}</div><div><b>${p.name}</b><br><small>${p.role}</small></div><span class="tag">${active.includes(p.id)?"На площадке":p.role==="Либеро"?"Либеро":"Выбрать"}</span></div>`).join("");
+ const bench=players.filter(p=>!active.includes(p.id));
+ $("benchRoster").innerHTML=bench.map(p=>`<div class="playerCard"><div class="avatar">${p.n}</div><div><b>${p.name}</b><br><small>${p.role}</small></div><span class="tag">${p.role==="Либеро"?"Автозамена":"Скамейка"}</span></div>`).join("");
+ document.querySelectorAll("#selectRoster .playerCard").forEach(c=>c.onclick=()=>{selectedRosterId=c.dataset.id});
+ document.querySelectorAll(".zone").forEach(z=>z.onclick=()=>{
+   if(!selectedRosterId)return;
+   const p=pBy(selectedRosterId);
+   if(p.role==="Либеро")return alert("Либеро выходит автоматически вместо центральных на задней линии.");
+   const existingZone=Object.keys(lineup).find(k=>lineup[k]===selectedRosterId);
+   const target=z.dataset.zone;
+   if(existingZone){const tmp=lineup[target];lineup[target]=selectedRosterId;lineup[existingZone]=tmp}
+   else lineup[target]=selectedRosterId;
+   selectedRosterId=null;renderSelection();
+ });
+}
+$("autoLineupBtn").onclick=()=>{lineup={...defaultLineup};renderSelection()};
+$("newMatchBtn").onclick=()=>{currentOpponent=opponents[+$("oppSelect").value];show("selection");renderSelection()};
+$("startGameBtn").onclick=()=>{
+ const ids=Object.values(lineup);
+ if(ids.length!==6||new Set(ids).size!==6)return alert("На площадке должны находиться 6 разных игроков.");
+ if(!ids.includes("mih")||!ids.includes("kop")||!ids.includes("luk")||!ids.includes("loz"))return alert("В стартовом составе должны быть связующий, диагональный и два центральных.");
+ $("oppName").textContent=currentOpponent;show("game");
+};
+$("homeBtn").onclick=()=>show("menu");
+
+const canvas=$("court"),ctx=canvas.getContext("2d");
+let W=0,H=0,DPR=1,last=0;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=canvas.clientWidth;H=canvas.clientHeight;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener("resize",resize);
+
+const game={
+running:false,phase:"serveAim",scoreA:0,scoreB:0,rotation:0,
+aiming:false,aimStart:0,pointer:{x:0,y:0},target:null,
+ball:{x:0,y:0,z:0,from:null,to:null,t:0,dur:1,active:false,next:null},
+our:[],opp:[],selectedPlayer:null,setterTarget:null,attacker:null,
+subOut:null,subIn:null,messageTimer:0
+};
+const posOur=[
+{x:.24,y:.73},{x:.50,y:.69},{x:.76,y:.73},
+{x:.30,y:.88},{x:.50,y:.84},{x:.70,y:.88}
+];
+const posOpp=[
+{x:.30,y:.27},{x:.50,y:.31},{x:.70,y:.27},
+{x:.24,y:.12},{x:.50,y:.16},{x:.76,y:.12}
+];
+function resetMatch(){
+ game.running=true;game.phase="serveAim";game.scoreA=0;game.scoreB=0;game.rotation=0;game.aiming=false;
+ $("sa").textContent=0;$("sb").textContent=0;buildTeams();setPhase("serveAim");
+}
+function buildTeams(){
+ game.our=Object.keys(lineup).map((z,i)=>({team:"our",zone:+z,id:lineup[z],...pBy(lineup[z]),x:posOur[i].x,y:posOur[i].y,tx:posOur[i].x,ty:posOur[i].y}));
+ game.opp=Array.from({length:6},(_,i)=>({team:"opp",id:"o"+i,name:"Соперник",n:i+1,x:posOpp[i].x,y:posOpp[i].y,tx:posOpp[i].x,ty:posOpp[i].y}));
+ renderBenchMini();
+}
+function renderBenchMini(){
+ const ids=benchIds();$("benchMini").innerHTML=[...ids,"sad"].map(id=>{const p=pBy(id);return `<span>№${p.n} ${p.name}</span>`}).join("");
+}
+function setPhase(ph){
+ game.phase=ph;
+ const map={
+ serveAim:["Подача","Удерживайте палец на стороне соперника"],
+ opponent:["Розыгрыш соперника","Следите за атакой соперника"],
+ chooseReceiver:["Защита","Быстро выберите ближайшего игрока"],
+ receiveAim:["Доводка","Удерживайте палец в зоне связующего"],
+ setPause:["Связующий","Выберите игрока для передачи"],
+ setAim:["Передача","Удерживайте палец у выбранного нападающего"],
+ attackPause:["Атака","Выберите атакующего"],
+ attackAim:["Атака","Удерживайте палец на стороне соперника"]
+ };
+ $("phaseChip").textContent=map[ph][0];$("instruction").textContent=map[ph][1];
+ $("aimTarget").textContent="не выбрана";
+}
+function mapPoint(nx,ny){
+ const topY=H*.07,bottomY=H*.95,topL=W*.31,topR=W*.69,botL=W*.07,botR=W*.93;
+ const y=topY+(bottomY-topY)*ny;
+ const t=ny;
+ const l=topL+(botL-topL)*t,r=topR+(botR-topR)*t;
+ return{x:l+(r-l)*nx,y};
+}
+function invPoint(x,y){
+ const topY=H*.07,bottomY=H*.95;
+ const ny=Math.max(0,Math.min(1,(y-topY)/(bottomY-topY)));
+ const l=W*.31+(W*.07-W*.31)*ny,r=W*.69+(W*.93-W*.69)*ny;
+ return{x:Math.max(0,Math.min(1,(x-l)/(r-l))),y:ny};
+}
+function drawCourt(){
+ ctx.clearRect(0,0,W,H);
+ const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#1f2d3b");g.addColorStop(.28,"#183348");g.addColorStop(.29,"#bd6c35");g.addColorStop(1,"#e2954e");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ // walls and stands
+ ctx.fillStyle="#152b3b";ctx.fillRect(0,0,W,H*.23);
+ ctx.fillStyle="#253b4a";for(let i=0;i<10;i++)ctx.fillRect(i*W/10+6,H*.05,3,H*.14);
+ // court polygon
+ const A=mapPoint(0,0),B=mapPoint(1,0),C=mapPoint(1,1),D=mapPoint(0,1);
+ ctx.fillStyle="#d78443";ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.lineTo(C.x,C.y);ctx.lineTo(D.x,D.y);ctx.closePath();ctx.fill();
+ ctx.strokeStyle="#fff3db";ctx.lineWidth=3;ctx.stroke();
+ // center/net and attack lines
+ [0.5,0.34,0.66].forEach((ny,i)=>{const l=mapPoint(0,ny),r=mapPoint(1,ny);ctx.strokeStyle=i===0?"#f7f7f7":"#fff2d7";ctx.lineWidth=i===0?4:2;ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(r.x,r.y);ctx.stroke()});
+ // side lines and net posts
+ const nl=mapPoint(0,.5),nr=mapPoint(1,.5);ctx.strokeStyle="#d5d8de";ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(nl.x-6,nl.y+40);ctx.lineTo(nl.x-6,nl.y-45);ctx.moveTo(nr.x+6,nr.y+40);ctx.lineTo(nr.x+6,nr.y-45);ctx.stroke();
+ for(let x=nl.x;x<nr.x;x+=15){ctx.strokeStyle="#ffffff66";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,nl.y-33);ctx.lineTo(x,nl.y);ctx.stroke()}
+}
+function drawPlayer(p,ours){
+ const q=mapPoint(p.x,p.y),scale=.55+p.y*.8;
+ ctx.save();ctx.translate(q.x,q.y);
+ ctx.fillStyle="#00000035";ctx.beginPath();ctx.ellipse(0,9,16*scale,6*scale,0,0,Math.PI*2);ctx.fill();
+ const selected=game.selectedPlayer&&game.selectedPlayer.id===p.id;
+ if(selected){ctx.strokeStyle="#ffd66f";ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,-17*scale,24*scale,0,Math.PI*2);ctx.stroke()}
+ ctx.fillStyle=ours?"#171922":"#ececef";ctx.fillRect(-11*scale,-32*scale,22*scale,29*scale);
+ ctx.fillStyle=ours?"#8b1740":"#3368aa";ctx.fillRect(-11*scale,-23*scale,22*scale,12*scale);
+ ctx.fillStyle="#d7a77c";ctx.beginPath();ctx.arc(0,-40*scale,7*scale,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#f5e1c5";ctx.font=`bold ${10*scale}px system-ui`;ctx.textAlign="center";ctx.fillText(p.n,0,-13*scale);
+ if(ours){ctx.fillStyle="#fff";ctx.font=`${8*scale}px system-ui`;ctx.fillText(p.name,0,8*scale)}
+ ctx.restore();
+}
+function drawBall(){
+ let x,y,z=0;
+ if(game.ball.active){
+  const a=game.ball.from,b=game.ball.to,t=game.ball.t;
+  x=a.x+(b.x-a.x)*t;y=a.y+(b.y-a.y)*t;z=Math.sin(Math.PI*t)*game.ball.z;
+ }else if(game.target){x=game.target.x;y=game.target.y}else{x=.82;y=.91}
+ const q=mapPoint(x,y),scale=.6+y*.7;
+ ctx.fillStyle="#fff4a8";ctx.strokeStyle="#755b1c";ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(q.x,q.y-z,8*scale,0,Math.PI*2);ctx.fill();ctx.stroke();
+}
+function drawAim(){
+ if(!game.aiming||!game.target)return;
+ let from;
+ if(game.phase==="serveAim")from={x:.83,y:.98};
+ else if(game.phase==="receiveAim")from={x:game.selectedPlayer.x,y:game.selectedPlayer.y};
+ else if(game.phase==="setAim")from={x:.5,y:.67};
+ else if(game.phase==="attackAim")from={x:game.attacker.x,y:game.attacker.y};
+ else return;
+ const a=mapPoint(from.x,from.y),b=mapPoint(game.target.x,game.target.y);
+ ctx.setLineDash([9,8]);ctx.strokeStyle="#f6dc74";ctx.lineWidth=3;ctx.beginPath();
+ const cx=(a.x+b.x)/2,cy=Math.min(a.y,b.y)-90;
+ ctx.moveTo(a.x,a.y);ctx.quadraticCurveTo(cx,cy,b.x,b.y);ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle="#f6dc7433";ctx.strokeStyle="#f6dc74";ctx.beginPath();ctx.arc(b.x,b.y,25,0,Math.PI*2);ctx.fill();ctx.stroke();
+}
+function fly(from,to,dur,z,next){
+ game.ball={from:{...from},to:{...to},t:0,dur,z,active:true,next};
+}
+function nearestOur(pt){
+ return game.our.reduce((best,p)=>Math.hypot(p.x-pt.x,p.y-pt.y)<Math.hypot(best.x-pt.x,best.y-pt.y)?p:best,game.our[0]);
+}
+function point(us,msg){
+ if(us)game.scoreA++;else game.scoreB++;
+ $("sa").textContent=game.scoreA;$("sb").textContent=game.scoreB;$("instruction").textContent=msg;
+ if((game.scoreA>=15||game.scoreB>=15)&&Math.abs(game.scoreA-game.scoreB)>=2){setTimeout(()=>alert((game.scoreA>game.scoreB?"Победа Пантеона!":"Поражение")+` ${game.scoreA}:${game.scoreB}`),150);game.running=false;return}
+ setTimeout(()=>{setPhase(us?"serveAim":"opponent");if(!us)startOpponentRally()},700);
+}
+function startOpponentRally(){
+ setPhase("opponent");
+ const r1=game.opp[4],r2=game.opp[1],r3=game.opp[Math.floor(Math.random()*3)];
+ fly({x:.18,y:.96},{x:r1.x,y:r1.y},.7,90,()=>{
+   fly({x:r1.x,y:r1.y},{x:r2.x,y:r2.y},.55,70,()=>{
+     fly({x:r2.x,y:r2.y},{x:r3.x,y:r3.y},.55,80,()=>{
+       const target={x:.17+Math.random()*.66,y:.58+Math.random()*.35};
+       game.target=target;
+       fly({x:r3.x,y:r3.y},target,.65,100,()=>{
+         setPhase("chooseReceiver");
+         game.ball.active=false;
+         game.target=target;
+       });
+     });
+   });
+ });
+}
+function pointerToTarget(e){const r=canvas.getBoundingClientRect();return invPoint(e.clientX-r.left,e.clientY-r.top)}
+canvas.addEventListener("pointerdown",e=>{
+ if(!game.running)return;
+ const pt=pointerToTarget(e);
+ if(game.phase==="chooseReceiver"){
+   const q={x:e.offsetX,y:e.offsetY};let best=null,bd=1e9;
+   game.our.forEach(p=>{const s=mapPoint(p.x,p.y),d=Math.hypot(s.x-q.x,s.y-q.y);if(d<bd){bd=d;best=p}});
+   if(best&&bd<55){game.selectedPlayer=best;setPhase("receiveAim");$("instruction").textContent=`Выбран ${best.name}. Доведите мяч связующему`;return}
+ }
+ if(game.phase==="setPause"){
+   let best=null,bd=1e9;game.our.forEach(p=>{if(p.role==="Связующий")return;const s=mapPoint(p.x,p.y),d=Math.hypot(s.x-e.offsetX,s.y-e.offsetY);if(d<bd){bd=d;best=p}});
+   if(best&&bd<65){game.attacker=best;setPhase("setAim");$("instruction").textContent=`Пас на ${best.name}. Удерживайте у точки атаки`;return}
+ }
+ if(game.phase==="attackPause"){
+   let best=null,bd=1e9;game.our.forEach(p=>{const s=mapPoint(p.x,p.y),d=Math.hypot(s.x-e.offsetX,s.y-e.offsetY);if(d<bd){bd=d;best=p}});
+   if(best&&bd<70){game.attacker=best;setPhase("attackAim");$("instruction").textContent=`Атакует ${best.name}. Выберите зону`;return}
+ }
+ if(["serveAim","receiveAim","setAim","attackAim"].includes(game.phase)){
+   game.aiming=true;game.aimStart=performance.now();game.target=pt;$("aimTarget").textContent=`${Math.round(pt.x*100)} / ${Math.round(pt.y*100)}`;canvas.setPointerCapture(e.pointerId);
+ }
+});
+canvas.addEventListener("pointermove",e=>{if(game.aiming){game.target=pointerToTarget(e);$("aimTarget").textContent=`${Math.round(game.target.x*100)} / ${Math.round(game.target.y*100)}`}});
+canvas.addEventListener("pointerup",e=>{
+ if(!game.aiming)return;game.aiming=false;
+ const hold=Math.min(1.4,(performance.now()-game.aimStart)/1000),power=Math.min(1,hold/.85),target={...game.target};
+ if(game.phase==="serveAim"){
+   if(target.y>.5){$("instruction").textContent="Цель должна быть на стороне соперника";return}
+   fly({x:.83,y:.98},target,.75-.2*power,130,()=>{if(Math.random()<.18+.25*power){point(true,"Эйс!")}else startOpponentRally()});
+ }else if(game.phase==="receiveAim"){
+   const setter=game.our.find(p=>p.role==="Связующий"),ideal={x:setter.x,y:setter.y};
+   const err=Math.hypot(target.x-ideal.x,target.y-ideal.y);
+   fly(game.target,target,.45,55,()=>{if(err<.28){game.ball.active=false;game.target={x:setter.x,y:setter.y};setPhase("setPause")}else if(Math.random()<.55){game.ball.active=false;game.target={x:setter.x,y:setter.y};setPhase("setPause");$("instruction").textContent="Неточная доводка, но мяч у связующего"}else point(false,"Ошибка на приёме")});
+ }else if(game.phase==="setAim"){
+   const from={x:.5,y:.67},to={x:game.attacker.x,y:Math.max(.54,game.attacker.y-.08)};
+   fly(from,to,.55,75,()=>{game.ball.active=false;game.target=to;setPhase("attackPause");game.selectedPlayer=game.attacker});
+ }else if(game.phase==="attackAim"){
+   if(target.y>.5){$("instruction").textContent="Атакуйте на сторону соперника";return}
+   const from={x:game.attacker.x,y:Math.max(.54,game.attacker.y-.08)};
+   fly(from,target,.55-.12*power,115,()=>{const defended=Math.random()<.42-power*.18;if(defended)startOpponentRally();else point(true,"Атака Пантеона — очко!")});
+ }
+});
+function update(dt){
+ game.our.forEach(p=>{p.x+=(p.tx-p.x)*Math.min(1,dt*5);p.y+=(p.ty-p.y)*Math.min(1,dt*5)});
+ if(game.ball.active){game.ball.t+=dt/game.ball.dur;if(game.ball.t>=1){game.ball.t=1;game.ball.active=false;const n=game.ball.next;game.ball.next=null;if(n)n()}}
+}
+function loop(t){const dt=Math.min(.035,(t-last)/1000||0);last=t;if($("game").classList.contains("active")){update(dt);drawCourt();[...game.opp].sort((a,b)=>a.y-b.y).forEach(p=>drawPlayer(p,false));[...game.our].sort((a,b)=>a.y-b.y).forEach(p=>drawPlayer(p,true));drawAim();drawBall();requestAnimationFrame(loop)}}
+$("subBtn").onclick=()=>{if(game.ball.active)return;$("modal").classList.add("show");renderSubs()};
+$("cancelSub").onclick=()=>{$("modal").classList.remove("show");game.subOut=game.subIn=null};
+function renderSubs(){
+ $("courtSubs").innerHTML=game.our.map(p=>`<div class="subItem ${game.subOut===p.id?"active":""}" data-id="${p.id}"><span>№${p.n} ${p.name}</span><small>${p.role}</small></div>`).join("");
+ const ids=benchIds();$("benchSubs").innerHTML=ids.map(id=>{const p=pBy(id);return `<div class="subItem ${game.subIn===p.id?"active":""}" data-id="${p.id}"><span>№${p.n} ${p.name}</span><small>${p.role}</small></div>`}).join("");
+ document.querySelectorAll("#courtSubs .subItem").forEach(x=>x.onclick=()=>{game.subOut=x.dataset.id;renderSubs()});
+ document.querySelectorAll("#benchSubs .subItem").forEach(x=>x.onclick=()=>{game.subIn=x.dataset.id;renderSubs()});
+}
+$("confirmSub").onclick=()=>{
+ if(!game.subOut||!game.subIn)return alert("Выберите обоих игроков.");
+ const out=pBy(game.subOut),inn=pBy(game.subIn);
+ if(out.role!==inn.role&&!(out.role==="Доигровщик"&&inn.role==="Доигровщик"))return alert("В этой версии разрешены замены игроков одного амплуа.");
+ const z=Object.keys(lineup).find(k=>lineup[k]===game.subOut);lineup[z]=game.subIn;
+ buildTeams();$("modal").classList.remove("show");game.subOut=game.subIn=null;
+};
+displayRoster();renderSelection();resize();
+</script>
+</body>
+</html>
